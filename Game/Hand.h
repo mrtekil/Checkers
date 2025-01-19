@@ -6,9 +6,11 @@
 #include "Board.h"
 
 // methods for hands
+// Класс Hand содержит указатель на объект Board, который представляет игровое поле
 class Hand
 {
   public:
+	// Конструктор принимает указатель на Board и инициализирует внутреннее поле board
     Hand(Board *board) : board(board)
     {
     }
@@ -25,8 +27,9 @@ class Hand
                 switch (windowEvent.type)
                 {
                 case SDL_QUIT:
-                    resp = Response::QUIT;
+                    resp = Response::QUIT; // Установка ответа QUIT при закрытии окна
                     break;
+					// При нажатии кнопки мыши получаются координаты курсора. xc и yc вычисляются как индексы клеток на игровом поле, исходя из текущих размеров поля (board->H и board->W)
                 case SDL_MOUSEBUTTONDOWN:
                     x = windowEvent.motion.x;
                     y = windowEvent.motion.y;
@@ -34,15 +37,15 @@ class Hand
                     yc = int(x / (board->W / 10) - 1);
                     if (xc == -1 && yc == -1 && board->history_mtx.size() > 1)
                     {
-                        resp = Response::BACK;
+                        resp = Response::BACK; // Установка ответа BACK для возврата хода
                     }
                     else if (xc == -1 && yc == 8)
                     {
-                        resp = Response::REPLAY;
+                        resp = Response::REPLAY; // Установка ответа REPLAY для загрузки игры повторно
                     }
                     else if (xc >= 0 && xc < 8 && yc >= 0 && yc < 8)
                     {
-                        resp = Response::CELL;
+                        resp = Response::CELL; // Установка ответа CELL для выбора клетки
                     }
                     else
                     {
@@ -57,11 +60,11 @@ class Hand
                         break;
                     }
                 }
-                if (resp != Response::OK)
+                if (resp != Response::OK) // // Выходим из цикла если ответ любой кроме - OK
                     break;
             }
         }
-        return {resp, xc, yc};
+        return {resp, xc, yc}; // Возвращаем ответ и выбранную позицию клетки
     }
 
     Response wait() const
@@ -78,7 +81,7 @@ class Hand
                     resp = Response::QUIT;
                     break;
                 case SDL_WINDOWEVENT_SIZE_CHANGED:
-                    board->reset_window_size();
+                    board->reset_window_size(); // При изменении размера окна изменяется и размер доски
                     break;
                 case SDL_MOUSEBUTTONDOWN: {
                     int x = windowEvent.motion.x;

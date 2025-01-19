@@ -1,19 +1,23 @@
 {
     "WindowSize": {
+		// Задание параметров высоты и ширины
         "Width": 0,
         "Hight": 0
     },
     "Bot": {
-        "IsWhiteBot": false,
-        "IsBlackBot": true,
-        "WhiteBotLevel": 0,
+		// настройки бота
+        "IsWhiteBot": false, // Настройка кто играет белыми, если бот, должно быть true. В нашем случае бот не играет белыми
+        "IsBlackBot": true, // Настройка кто играет белыми, если бот, должно быть true. В нашем случае бот играет черными
+		// Настройка сложности бота
+        "WhiteBotLevel": 0, 
         "BlackBotLevel": 5,
-        "BotScoringType": "NumberAndPotential",
-        "BotDelayMS": 0,
-        "NoRandom": false,
-        "Optimization": "O1"
+        "BotScoringType": "NumberAndPotential", // Настройка оценки хода игры(NumberAndPotential и NumberOnly)
+        "BotDelayMS": 0, // задержка между ходами бота
+        "NoRandom": false, // включение/выключение элемента внезапности(рандома)(заранее просчитанные ходы алгоритмом). В нашем случае элемент внезапности присутствует.
+        "Optimization": "O1" // уровни оптимизации
     },
+	// Настройки игры
     "Game": {
-        "MaxNumTurns": 120
+        "MaxNumTurns": 120 // колличество ходов когда наступит ничья.
     }
 }

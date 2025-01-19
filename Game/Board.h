@@ -20,18 +20,20 @@ class Board
 {
 public:
     Board() = default;
-    Board(const unsigned int W, const unsigned int H) : W(W), H(H)
+    Board(const unsigned int W, const unsigned int H) : W(W), H(H) // Конструктор для инициализации доски по высоте и ширине
     {
     }
 
     // draws start board
     int start_draw()
     {
+		// Проверка на инициализацю SDL
         if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
         {
             print_exception("SDL_Init can't init SDL2 lib");
             return 1;
         }
+		// Проверяем размеры высоты и ширины
         if (W == 0 || H == 0)
         {
             SDL_DisplayMode dm;
@@ -56,6 +58,7 @@ public:
             print_exception("SDL_CreateRenderer can't create renderer");
             return 1;
         }
+		// загрузка графических моделей
         board = IMG_LoadTexture(ren, board_path.c_str());
         w_piece = IMG_LoadTexture(ren, piece_white_path.c_str());
         b_piece = IMG_LoadTexture(ren, piece_black_path.c_str());
@@ -73,7 +76,7 @@ public:
         rerender();
         return 0;
     }
-
+	// // функция redraw() перерисовывает доску заного и очищает все результаты
     void redraw()
     {
         game_results = -1;
@@ -83,7 +86,7 @@ public:
         clear_active();
         clear_highlight();
     }
-
+	// Функция move_piece реализует логику перемещения шашки на игровом поле, включая удаление битой шашки и фактическое перемещение самой шашки
     void move_piece(move_pos turn, const int beat_series = 0)
     {
         if (turn.xb != -1)
@@ -92,7 +95,8 @@ public:
         }
         move_piece(turn.x, turn.y, turn.x2, turn.y2, beat_series);
     }
-
+	
+	//Функция move_piece реализует логику перемещения шашки на игровом поле с проверками на допустимость перемещения
     void move_piece(const POS_T i, const POS_T j, const POS_T i2, const POS_T j2, const int beat_series = 0)
     {
         if (mtx[i2][j2])
@@ -109,13 +113,14 @@ public:
         drop_piece(i, j);
         add_history(beat_series);
     }
-
+	//	Функция drop_piece яреализует логику для удаления шашки с игрового поля, а также обновления визуализации(вызов rerender). Очищает указанную клетку и вызывает перерисовку, чтобы изменения были видны игроку
     void drop_piece(const POS_T i, const POS_T j)
     {
         mtx[i][j] = 0;
         rerender();
     }
 
+	// Функция turn_into_queen, реализует логику превращения шашки в "дамку" исход из ее позиции
     void turn_into_queen(const POS_T i, const POS_T j)
     {
         if (mtx[i][j] == 0 || mtx[i][j] > 2)

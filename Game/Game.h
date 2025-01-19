@@ -18,9 +18,12 @@ class Game
     }
 
     // to start checkers
+	// Функция отвечает за запуск игры в шашки, управление игровым процессом, обработку ходов, взаимодействие с игроками, а также логирование времени игры.
     int play()
     {
-        auto start = chrono::steady_clock::now();
+        auto start = chrono::steady_clock::now(); // Здесь сохраняется текущее время, чтобы позже можно было вычислить общее время игры
+		
+		// Если is_replay true, инициализируется новая логика игры, перезагружаются настройки config.reload(); и перерисовывается игровое поле board.redraw();. Иначе просто начинается рисование игрового поля
         if (is_replay)
         {
             logic = Logic(&board, &config);
@@ -33,29 +36,37 @@ class Game
         }
         is_replay = false;
 
+		// Инициализируются переменные для отслеживания номера хода. Цикл продолжается до тех пор, пока не достигнуто максимальное количество ходов, согласно нашему кофиг файлу это 120 ходов
         int turn_num = -1;
         bool is_quit = false;
         const int Max_turns = config("Game", "MaxNumTurns");
-        while (++turn_num < Max_turns)
+		
+		// Обработка ходов внутри цикла
+        while (++turn_num < Max_turns) // играем пока номер хода меньше максимального количества ходов
         {
             beat_series = 0;
-            logic.find_turns(turn_num % 2);
-            if (logic.turns.empty())
+            logic.find_turns(turn_num % 2); // // Поиск возможных ходов для текущего игрока.
+            if (logic.turns.empty()) // Если нет доступных ходов, игра завершается.
                 break;
+				// по четности номера хода определяется, кто ходит: 0 - белые, 1 - черные
             logic.Max_depth = config("Bot", string((turn_num % 2) ? "Black" : "White") + string("BotLevel"));
             if (!config("Bot", string("Is") + string((turn_num % 2) ? "Black" : "White") + string("Bot")))
             {
+				// Ход игрока
                 auto resp = player_turn(turn_num % 2);
-                if (resp == Response::QUIT)
+				// Завершаем игру если игроком был выбран QUIT
+                if (resp == Response::QUIT) 
                 {
                     is_quit = true;
                     break;
                 }
+				// если игрок нажал кнопку replay, начинаем игру заново
                 else if (resp == Response::REPLAY)
                 {
                     is_replay = true;
                     break;
                 }
+				// если игрок нажал кнопку назад, возвращаемся к предыдущему ходу
                 else if (resp == Response::BACK)
                 {
                     if (config("Bot", string("Is") + string((1 - turn_num % 2) ? "Black" : "White") + string("Bot")) &&
@@ -75,27 +86,30 @@ class Game
             else
                 bot_turn(turn_num % 2);
         }
+		// Время завершения игры
         auto end = chrono::steady_clock::now();
         ofstream fout(project_path + "log.txt", ios_base::app);
         fout << "Game time: " << (int)chrono::duration<double, milli>(end - start).count() << " millisec\n";
         fout.close();
 
         if (is_replay)
-            return play();
-        if (is_quit)
+            return play(); // Если выбран replay, запускаем игру повторно
+        if (is_quit) // Если выбран quit завершаем игру
             return 0;
         int res = 2;
+		// Определяем ничью если она была
         if (turn_num == Max_turns)
         {
             res = 0;
         }
+		// Иначе если побеждает один из игроков
         else if (turn_num % 2)
         {
             res = 1;
         }
-        board.show_final(res);
+        board.show_final(res); // Показываем результат игры
         auto resp = hand.wait();
-        if (resp == Response::REPLAY)
+        if (resp == Response::REPLAY) // Если выбрано повторение игры, запускаем ее сново
         {
             is_replay = true;
             return play();
